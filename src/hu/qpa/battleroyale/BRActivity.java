@@ -18,6 +18,7 @@ import android.widget.Toast;
 public class BRActivity extends Activity {
 	public static final String EXTRA_USER_ID = "user_id";
 	public static final String EXTRA_STATUS = "status";
+	public static final String EXTRA_SERVICE_STATE="service_state";
 	public static final String EXTRA_MESSAGE = "message";
 
 	BRService mService;
@@ -48,7 +49,7 @@ public class BRActivity extends Activity {
 
 	void handleStateChange(Intent intent) {
 		ServiceState state = (ServiceState) intent.getExtras()
-				.get(EXTRA_STATUS);
+				.get(EXTRA_SERVICE_STATE);
 		if (state != null) {
 			Toast.makeText(this, "New state:" + state.name(),
 					Toast.LENGTH_SHORT).show();

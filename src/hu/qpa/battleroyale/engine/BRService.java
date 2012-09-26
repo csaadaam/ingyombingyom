@@ -40,7 +40,6 @@ public class BRService extends Service implements LocationListener {
 
 	private Intent stateChangeIntent;
 
-	private ServiceState mState;
 	LocationManager mLocationManager;
 	NotificationManager mNotificationManager;
 	BRClient mClient;
@@ -54,17 +53,11 @@ public class BRService extends Service implements LocationListener {
 	private int lastNotificationId = 0;
 
 	// status
-	private int userID = 0;
-	private String username;
-	private String team;
-	private boolean alive;
-	private int score;
+	private BRStatus status;
 	private String token;
-	private Date warnsince;
-	private float[] nearestserum;
-	private String code;
+	
 
-	private ArrayList<Integer> processedEvents;
+	private ArrayList<Integer> processedEvents = new ArrayList<Integer>();
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -108,7 +101,6 @@ public class BRService extends Service implements LocationListener {
 		if (!isInitialized) {
 			stateChangeIntent = new Intent(SERVICE_STATE_CHANGED).putExtra(
 					"newState", ServiceState.STARTED);
-			mState = ServiceState.STARTED;
 			mClient = new BRClient();
 			mGson = new Gson();
 			isInitialized = true;
@@ -167,10 +159,13 @@ public class BRService extends Service implements LocationListener {
 						+ location.getLongitude());
 	}
 
-	private void newState(ServiceState state) {
-		mState = state;
+	private void newState(ServiceState state, BRStatus status) {
 		stateChangeIntent = new Intent(SERVICE_STATE_CHANGED).putExtra(
-				BRActivity.EXTRA_STATUS, state);
+				BRActivity.EXTRA_SERVICE_STATE, state);
+		if(status!= null){
+			stateChangeIntent.putExtra(
+					BRActivity.EXTRA_STATUS, status);
+		}
 		sendBroadcast(stateChangeIntent);
 	}
 
@@ -178,8 +173,8 @@ public class BRService extends Service implements LocationListener {
 		String passwordSHA1 = Sha1.getHash(password);
 		new callWSMethodTask().execute(
 				new BasicNameValuePair("action","auth"), 
-				new BasicNameValuePair("username",username), 
-				new BasicNameValuePair("password",passwordSHA1 ));
+				new BasicNameValuePair("user",username), 
+				new BasicNameValuePair("pass",passwordSHA1 ));
 	}
 
 	public void codeEntry(String entry) {
@@ -244,13 +239,11 @@ public class BRService extends Service implements LocationListener {
 		return stateChangeIntent;
 	}
 
-	public int getUserID() {
-		return userID;
-	}
+	
 
 	public void logout() {
 		mLocationManager.removeUpdates(this);
-		newState(ServiceState.STARTED);
+		newState(ServiceState.STARTED, null);
 
 	}
 
@@ -274,6 +267,9 @@ public class BRService extends Service implements LocationListener {
 	}
 
 	private void handleResponse(String responseString) {
+		if(responseString.endsWith("\n")){
+			responseString=responseString.split("\n")[0];
+		}
 		Log.d(TAG, "response:"+responseString);
 		if ("".compareTo(responseString) == 0) {
 			return;
@@ -282,8 +278,12 @@ public class BRService extends Service implements LocationListener {
 			// login válasz
 			startPositioning();
 
+			new callWSMethodTask().execute(
+					new BasicNameValuePair("action","status"),
+					new BasicNameValuePair("token", this.token),
+					new BasicNameValuePair("status", "{\"lat\":47.12,\"lon\":35.31,\"eventid\":[0,1,2,3,4]}"));
 			// TODO start status updater timer
-			newState(ServiceState.ALIVE);
+			
 			return;
 		}
 		WSResponse response;
@@ -294,10 +294,7 @@ public class BRService extends Service implements LocationListener {
 			Toast.makeText(getApplicationContext(), "Hibás válasz a szervertõl!", Toast.LENGTH_SHORT).show();
 			return;
 		}
-
-		this.username = response.username;
-		this.team = response.team;
-		this.score = response.score;
+		BRStatus status = new BRStatus(response.username,response.team,response.alive,response.score,response.warnsince, response.nearestserum, response.code);
 		this.token = response.token;
 
 		for (String[] event : response.events) {
@@ -305,9 +302,9 @@ public class BRService extends Service implements LocationListener {
 		}
 
 		if (response.alive) {
-			newState(ServiceState.ALIVE);
+			newState(ServiceState.ALIVE, status);
 		} else {
-			newState(ServiceState.ZOMBIE);
+			newState(ServiceState.ZOMBIE, status);
 		}
 	}
 
@@ -329,81 +326,9 @@ public class BRService extends Service implements LocationListener {
 		// TODO
 	}
 
-	public ServiceState getmState() {
-		return mState;
-	}
 
-	public void setmState(ServiceState mState) {
-		this.mState = mState;
-	}
 
-	public String getUsername() {
-		return username;
-	}
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getTeam() {
-		return team;
-	}
-
-	public void setTeam(String team) {
-		this.team = team;
-	}
-
-	public boolean isAlive() {
-		return alive;
-	}
-
-	public void setAlive(boolean alive) {
-		this.alive = alive;
-	}
-
-	public int getScore() {
-		return score;
-	}
-
-	public void setScore(int score) {
-		this.score = score;
-	}
-
-	public String getToken() {
-		return token;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
-	}
-
-	public Date getWarnsince() {
-		return warnsince;
-	}
-
-	public void setWarnsince(Date warnsince) {
-		this.warnsince = warnsince;
-	}
-
-	public float[] getNearestserum() {
-		return nearestserum;
-	}
-
-	public void setNearestserum(float[] nearestserum) {
-		this.nearestserum = nearestserum;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public void setUserID(int userID) {
-		this.userID = userID;
-	}
 	
 	
 }

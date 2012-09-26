@@ -1,6 +1,7 @@
 package hu.qpa.battleroyale;
 
 import hu.qpa.battleroyale.engine.BRService.ServiceState;
+import hu.qpa.battleroyale.engine.BRStatus;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -39,14 +40,14 @@ public class LoginActivity extends BRActivity {
 	void handleStateChange(Intent intent) {
 		super.handleStateChange(intent);
 		Bundle extras = intent.getExtras();
-		if (extras != null && extras.containsKey(EXTRA_STATUS)) {
-			ServiceState newState = (ServiceState) extras.get(EXTRA_STATUS);
+		if (extras != null && extras.containsKey(EXTRA_SERVICE_STATE)) {
+			ServiceState newState = (ServiceState) extras.get(EXTRA_SERVICE_STATE);
 			switch (newState) {
 			case ALIVE:
 			case ZOMBIE:
 				Intent i = new Intent(this, MainActivity.class);
-				i.putExtra(EXTRA_USER_ID, mService.getUserID());
-				i.putExtra(EXTRA_STATUS, newState);
+				i.putExtra(EXTRA_SERVICE_STATE, newState);
+				i.putExtra(EXTRA_STATUS, (BRStatus)extras.get(EXTRA_STATUS));
 				startActivity(i);
 				break;
 			default:

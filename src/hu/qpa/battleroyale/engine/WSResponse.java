@@ -12,7 +12,7 @@ public class WSResponse {
 	int score;
 	String token;
 	List<String[]> events;
-	Date warnsince;
+	long warnsince;
 	float[] nearestserum;
 	String code;
 }

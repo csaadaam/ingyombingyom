@@ -1,5 +1,6 @@
 package hu.qpa.battleroyale;
 
+import hu.qpa.battleroyale.engine.BRStatus;
 import hu.qpa.battleroyale.engine.BRService.ServiceState;
 
 import java.text.SimpleDateFormat;
@@ -68,61 +69,63 @@ public class MainActivity extends BRActivity {
 	}
 
 	private void updateUI(Intent intent) {
-		if (mService != null) {
-			tvScore.setText(mService.getScore() + " pont");
-			tvUsernameTeam.setText(mService.getUsername() + " ("
-					+ mService.getTeam() + ")");
-			Date warnSince = mService.getWarnsince();
+		Bundle extras = intent.getExtras();
+		if (extras == null) {
+			return;
+		}
+		if (extras.containsKey(EXTRA_STATUS)) {
+			BRStatus status = (BRStatus) extras.get(EXTRA_STATUS);
+			tvScore.setText(status.getScore() + " pont");
+			tvUsernameTeam.setText(status.getUsername() + " ("
+					+ status.getTeam() + ")");
+			Date warnSince = new Date(status.getWarnsince());
 			if (warnSince != null) { // TODO mikor kell ez?
 				tvWarn.setText("Utolsó warn: "
 						+ SimpleDateFormat.getDateTimeInstance().format(
 								warnSince));
 			}
-			updateStatusLabel(mService.getmState());
+			updateStatusLabel(status.isAlive());
 		}
 
-//		Bundle extras = intent.getExtras();
-//		if (extras != null) {
-//			String message = extras.getString(EXTRA_MESSAGE);
-//			if (message != null) {
-//				new AlertDialog.Builder(this)
-//						.setCancelable(true)
-//						.setPositiveButton("OK",
-//								new DialogInterface.OnClickListener() {
-//
-//									@Override
-//									public void onClick(DialogInterface dialog,
-//											int which) {
-//										return;
-//									}
-//								}).setMessage(message).show();
-//
-//			}
-//			if (extras.containsKey(EXTRA_USER_ID)) {
-//				int userID = extras.getInt(EXTRA_USER_ID);
-//				// tvUserID.setText(String.valueOf(userID));
-//			}
-//			if (extras.containsKey(EXTRA_STATUS)) {
-//				ServiceState state = (ServiceState) extras.get(EXTRA_STATUS);
-//				if (state != null) {
-//					updateStatusLabel(state);
-//				}
-//
-//			}
-//
-//		}
+		// Bundle extras = intent.getExtras();
+		// if (extras != null) {
+		// String message = extras.getString(EXTRA_MESSAGE);
+		// if (message != null) {
+		// new AlertDialog.Builder(this)
+		// .setCancelable(true)
+		// .setPositiveButton("OK",
+		// new DialogInterface.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(DialogInterface dialog,
+		// int which) {
+		// return;
+		// }
+		// }).setMessage(message).show();
+		//
+		// }
+		// if (extras.containsKey(EXTRA_USER_ID)) {
+		// int userID = extras.getInt(EXTRA_USER_ID);
+		// // tvUserID.setText(String.valueOf(userID));
+		// }
+		// if (extras.containsKey(EXTRA_STATUS)) {
+		// ServiceState state = (ServiceState) extras.get(EXTRA_STATUS);
+		// if (state != null) {
+		// updateStatusLabel(state);
+		// }
+		//
+		// }
+		//
+		// }
 
 	}
 
-	private void updateStatusLabel(ServiceState state) {
+	private void updateStatusLabel(boolean alive) {
 		String label = "élõ";
-		switch (state) {
-		case ALIVE:
+		if (alive) {
 			label = "élõ";
-			break;
-		case ZOMBIE:
+		} else {
 			label = "zombi";
-			break;
 		}
 		tvStatus.setText(label);
 	}
@@ -132,7 +135,7 @@ public class MainActivity extends BRActivity {
 		super.handleStateChange(intent);
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
-			ServiceState state = (ServiceState) extras.get(EXTRA_STATUS);
+			ServiceState state = (ServiceState) extras.get(EXTRA_SERVICE_STATE);
 			switch (state) {
 			case ALIVE:
 				break;
