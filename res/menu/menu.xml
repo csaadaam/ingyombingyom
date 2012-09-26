@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/settings" android:title="@string/menu_settings" android:enabled="true"></item>
+    <item android:id="@+id/test_intent" android:title="@string/test_intent" android:enabled="true"></item>
+<item android:id="@+id/logout" android:title="@string/logout" android:enabled="true"></item>
+<item android:id="@+id/menu_test_message" android:title="test message"></item>
+    
+
+</menu>

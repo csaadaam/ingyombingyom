@@ -1,0 +1,22 @@
+<resources>
+
+    <string name="app_name">BattleRoyale</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_map">BattleRoyale</string>
+    <string name="login">login</string>
+    <string name="map">térkép</string>
+    <string name="entry">beküldés</string>
+    <string name="logout">kilépés</string>
+    <string name="username">felhasználónév</string>
+    <string name="password">jelszó</string>
+    <string name="alive">élő</string>
+    <string name="server_host">szerver host</string>
+    <string name="port">port</string>
+    <string name="server">szerver</string>
+    <string name="host">host</string>
+    <string name="refresh_interval">frissítési gyakoriság (mp)</string>
+    <string name="test_intent">test intent</string>
+	<string name="notif_message_title">Új üzenet</string>
+	<string name="notif_message_content">Bökj ide, hogy megnézd</string>
+</resources>
