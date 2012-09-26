@@ -11,7 +11,7 @@ public class WSResponse {
 	String items; // TODO ez mi?
 	int score;
 	String token;
-	List<BREvent> events;
+	List<String[]> events;
 	Date warnsince;
 	float[] nearestserum;
 	String code;

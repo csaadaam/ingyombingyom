@@ -1,19 +1,21 @@
 package hu.qpa.battleroyale.engine;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-
-import com.google.gson.Gson;
-
 import hu.qpa.battleroyale.BRActivity;
 import hu.qpa.battleroyale.BRMapActivity;
 import hu.qpa.battleroyale.MessageActivity;
 import hu.qpa.battleroyale.R;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -31,16 +33,21 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+
 public class BRService extends Service implements LocationListener {
 	private static final String TAG = "BRService";
 	public static final String SERVICE_STATE_CHANGED = "Service state is changed.";
+	private static final String wsUrl = "https://qpa.sch.bme.hu/battleroyal/hungergames.php";
 
 	private Intent stateChangeIntent;
 
+	private ServiceState mState;
 	LocationManager mLocationManager;
 	NotificationManager mNotificationManager;
 	BRClient mClient;
-	
+
 	Gson mGson;
 
 	private boolean isInitialized = false;
@@ -59,6 +66,8 @@ public class BRService extends Service implements LocationListener {
 	private Date warnsince;
 	private float[] nearestserum;
 	private String code;
+
+	private ArrayList<Integer> processedEvents;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -95,13 +104,14 @@ public class BRService extends Service implements LocationListener {
 			0, // Start immediately
 			dot, short_gap, dot, short_gap, dot, short_gap, dot, short_gap,
 			dot, long_gap };
-	public String wsUrl;
+	
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (!isInitialized) {
 			stateChangeIntent = new Intent(SERVICE_STATE_CHANGED).putExtra(
 					"newState", ServiceState.STARTED);
+			mState = ServiceState.STARTED;
 			mClient = new BRClient();
 			mGson = new Gson();
 			isInitialized = true;
@@ -167,16 +177,19 @@ public class BRService extends Service implements LocationListener {
 	}
 
 	private void newState(ServiceState state) {
+		mState = state;
 		stateChangeIntent = new Intent(SERVICE_STATE_CHANGED).putExtra(
 				BRActivity.EXTRA_STATUS, state);
 		sendBroadcast(stateChangeIntent);
 	}
 
 	public void login(String username, String password) {
-		// TODO
-		startPositioning();
-		userID = 999999;
-		newState(ServiceState.ALIVE);
+		String passwordSHA1 = Sha1.getHash(password);
+		Toast.makeText(getApplicationContext(), passwordSHA1, Toast.LENGTH_SHORT).show();
+		new callWSMethodTask().execute(
+				new BasicNameValuePair("action","auth"), 
+				new BasicNameValuePair("username",username), 
+				new BasicNameValuePair("password",passwordSHA1 ));
 	}
 
 	public void codeEntry(String entry) {
@@ -250,8 +263,8 @@ public class BRService extends Service implements LocationListener {
 		newState(ServiceState.STARTED);
 
 	}
-	
-	class callWSMethodTask extends AsyncTask<NameValuePair, Void, String>{
+
+	class callWSMethodTask extends AsyncTask<NameValuePair, Void, String> {
 		@Override
 		protected String doInBackground(NameValuePair... params) {
 			try {
@@ -261,20 +274,76 @@ public class BRService extends Service implements LocationListener {
 				return "";
 			}
 		}
-		
+
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 			handleResponse(result);
 		}
-	}
-	
-	private void handleResponse(String responseString){
-		if("".compareTo(responseString)==0){
-			return;
-		}
-		WSResponse response = mGson.fromJson(responseString, WSResponse.class);
 		
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			Toast.makeText(getApplicationContext(), "Calling WS", Toast.LENGTH_SHORT).show();
+			
+		}
 	}
 
+	private void handleResponse(String responseString) {
+		Log.d(TAG, "response:"+responseString);
+		Toast.makeText(getApplicationContext(), "response:"+responseString, Toast.LENGTH_SHORT).show();
+		if ("".compareTo(responseString) == 0) {
+			return;
+		}
+		if (responseString.length() == 10) {
+			// login válasz
+			startPositioning();
+
+			// TODO start status updater timer
+			newState(ServiceState.ALIVE);
+			return;
+		}
+		WSResponse response;
+		try{
+			response = mGson.fromJson(responseString, WSResponse.class);
+		}catch(JsonParseException e){
+			Log.e(TAG, "Error parsing response", e);
+			Toast.makeText(getApplicationContext(), "Hibás válasz a szervertõl!", Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		this.username = response.username;
+		this.team = response.team;
+		this.score = response.score;
+		this.token = response.token;
+
+		for (String[] event : response.events) {
+			handleEvent(event);
+		}
+
+		if (response.alive) {
+			newState(ServiceState.ALIVE);
+		} else {
+			newState(ServiceState.ZOMBIE);
+		}
+	}
+
+	private void handleEvent(String... args) {
+		int eventID = Integer.valueOf(args[0]);
+		String eventType = args[1];
+		String message = args[2];
+
+		if ("message".compareTo(eventType) == 0) {
+			handleMessage(message);
+		} else if ("spell".compareTo(eventType) == 0) {
+			handleSpell(message);
+		}
+
+		processedEvents.add(eventID);
+	}
+
+	private void handleSpell(Object mess) {
+		// TODO
+	}
+	
 }
