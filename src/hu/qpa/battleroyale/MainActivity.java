@@ -1,6 +1,10 @@
 package hu.qpa.battleroyale;
 
 import hu.qpa.battleroyale.engine.BRService.ServiceState;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,16 +15,22 @@ import android.widget.TextView;
 
 public class MainActivity extends BRActivity {
 
-//	private TextView tvUserID;
+	// private TextView tvUserID;
 	private TextView tvStatus;
+	private TextView tvUsernameTeam;
+	private TextView tvScore;
+	private TextView tvWarn;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-//		tvUserID = (TextView) findViewById(R.id.tv_user_id);
+		// tvUserID = (TextView) findViewById(R.id.tv_user_id);
 		tvStatus = (TextView) findViewById(R.id.tv_status);
+		tvUsernameTeam = (TextView) findViewById(R.id.tv_user_team);
+		tvScore = (TextView) findViewById(R.id.tv_score);
+		tvWarn = (TextView) findViewById(R.id.tv_last_warn);
 
 		findViewById(R.id.btn_entry).setOnClickListener(
 				new View.OnClickListener() {
@@ -58,41 +68,49 @@ public class MainActivity extends BRActivity {
 	}
 
 	private void updateUI(Intent intent) {
-		Bundle extras = intent.getExtras();
-		if (extras != null) {
-			String message = extras.getString(EXTRA_MESSAGE);
-			if (message != null) {
-				new AlertDialog.Builder(this)
-						.setCancelable(true)
-						.setPositiveButton("OK",
-								new DialogInterface.OnClickListener() {
-
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										return;
-									}
-								}).setMessage(message).show();
-				if (mService != null) {
-//					tvUserID.setText(mService.getUserID());
-					updateStatusLabel((ServiceState) mService
-							.getStateChangeIntent().getExtras()
-							.get(EXTRA_STATUS));
-				}
+		if (mService != null) {
+			tvScore.setText(mService.getScore() + " pont");
+			tvUsernameTeam.setText(mService.getUsername() + " ("
+					+ mService.getTeam() + ")");
+			Date warnSince = mService.getWarnsince();
+			if (warnSince != null) { // TODO mikor kell ez?
+				tvWarn.setText("Utolsó warn: "
+						+ SimpleDateFormat.getDateTimeInstance().format(
+								warnSince));
 			}
-			if (extras.containsKey(EXTRA_USER_ID)) {
-				int userID = extras.getInt(EXTRA_USER_ID);
-//				tvUserID.setText(String.valueOf(userID));
-			}
-			if (extras.containsKey(EXTRA_STATUS)) {
-				ServiceState state = (ServiceState) extras.get(EXTRA_STATUS);
-				if (state != null) {
-					updateStatusLabel(state);
-				}
-
-			}
-
+			updateStatusLabel(mService.getmState());
 		}
+
+//		Bundle extras = intent.getExtras();
+//		if (extras != null) {
+//			String message = extras.getString(EXTRA_MESSAGE);
+//			if (message != null) {
+//				new AlertDialog.Builder(this)
+//						.setCancelable(true)
+//						.setPositiveButton("OK",
+//								new DialogInterface.OnClickListener() {
+//
+//									@Override
+//									public void onClick(DialogInterface dialog,
+//											int which) {
+//										return;
+//									}
+//								}).setMessage(message).show();
+//
+//			}
+//			if (extras.containsKey(EXTRA_USER_ID)) {
+//				int userID = extras.getInt(EXTRA_USER_ID);
+//				// tvUserID.setText(String.valueOf(userID));
+//			}
+//			if (extras.containsKey(EXTRA_STATUS)) {
+//				ServiceState state = (ServiceState) extras.get(EXTRA_STATUS);
+//				if (state != null) {
+//					updateStatusLabel(state);
+//				}
+//
+//			}
+//
+//		}
 
 	}
 

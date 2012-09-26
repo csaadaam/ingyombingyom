@@ -6,9 +6,6 @@ import hu.qpa.battleroyale.MessageActivity;
 import hu.qpa.battleroyale.R;
 
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -122,11 +119,7 @@ public class BRService extends Service implements LocationListener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
-		Toast.makeText(getApplicationContext(), "Service started",
-				Toast.LENGTH_SHORT).show();
 		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
 		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 	}
 
@@ -170,10 +163,8 @@ public class BRService extends Service implements LocationListener {
 
 	private void sendLocation(Location location) {
 		// TODO
-		Toast.makeText(
-				getApplicationContext(),
-				"location updated:" + location.getLatitude() + ","
-						+ location.getLongitude(), Toast.LENGTH_SHORT).show();
+		Log.d(TAG, "location updated:" + location.getLatitude() + ","
+						+ location.getLongitude());
 	}
 
 	private void newState(ServiceState state) {
@@ -185,7 +176,6 @@ public class BRService extends Service implements LocationListener {
 
 	public void login(String username, String password) {
 		String passwordSHA1 = Sha1.getHash(password);
-		Toast.makeText(getApplicationContext(), passwordSHA1, Toast.LENGTH_SHORT).show();
 		new callWSMethodTask().execute(
 				new BasicNameValuePair("action","auth"), 
 				new BasicNameValuePair("username",username), 
@@ -281,17 +271,10 @@ public class BRService extends Service implements LocationListener {
 			handleResponse(result);
 		}
 		
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			Toast.makeText(getApplicationContext(), "Calling WS", Toast.LENGTH_SHORT).show();
-			
-		}
 	}
 
 	private void handleResponse(String responseString) {
 		Log.d(TAG, "response:"+responseString);
-		Toast.makeText(getApplicationContext(), "response:"+responseString, Toast.LENGTH_SHORT).show();
 		if ("".compareTo(responseString) == 0) {
 			return;
 		}
@@ -345,5 +328,82 @@ public class BRService extends Service implements LocationListener {
 	private void handleSpell(Object mess) {
 		// TODO
 	}
+
+	public ServiceState getmState() {
+		return mState;
+	}
+
+	public void setmState(ServiceState mState) {
+		this.mState = mState;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getTeam() {
+		return team;
+	}
+
+	public void setTeam(String team) {
+		this.team = team;
+	}
+
+	public boolean isAlive() {
+		return alive;
+	}
+
+	public void setAlive(boolean alive) {
+		this.alive = alive;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public Date getWarnsince() {
+		return warnsince;
+	}
+
+	public void setWarnsince(Date warnsince) {
+		this.warnsince = warnsince;
+	}
+
+	public float[] getNearestserum() {
+		return nearestserum;
+	}
+
+	public void setNearestserum(float[] nearestserum) {
+		this.nearestserum = nearestserum;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public void setUserID(int userID) {
+		this.userID = userID;
+	}
+	
 	
 }

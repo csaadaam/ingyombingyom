@@ -12,6 +12,7 @@ import android.os.Bundle;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.OverlayItem;
@@ -31,13 +32,19 @@ public class BRMapActivity extends com.google.android.maps.MapActivity {
 		setContentView(R.layout.activity_map);
 
 		mMapView = (MapView) findViewById(R.id.mapView);
+		mMapView.setBuiltInZoomControls(true);
 		mmyLocationOverlay = new MyLocationOverlay(this, mMapView);
 		mmyLocationOverlay.enableCompass();
 
 		mMapView.getOverlays().add(mmyLocationOverlay);
 		mMapView.postInvalidate();
 
-		handleIntent(getIntent());
+		mmyLocationOverlay.runOnFirstFix(new Runnable() {
+            public void run() {
+            	mMapView.getController().setZoom(18);
+            	mMapView.getController().animateTo(mmyLocationOverlay.getMyLocation());
+            }
+        });		handleIntent(getIntent());
 	}
 
 	private void handleIntent(Intent intent) {
