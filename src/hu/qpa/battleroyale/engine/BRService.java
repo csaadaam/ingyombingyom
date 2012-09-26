@@ -1,5 +1,15 @@
 package hu.qpa.battleroyale.engine;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+
+import com.google.gson.Gson;
+
 import hu.qpa.battleroyale.BRActivity;
 import hu.qpa.battleroyale.BRMapActivity;
 import hu.qpa.battleroyale.MessageActivity;
@@ -14,6 +24,7 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -28,6 +39,9 @@ public class BRService extends Service implements LocationListener {
 
 	LocationManager mLocationManager;
 	NotificationManager mNotificationManager;
+	BRClient mClient;
+	
+	Gson mGson;
 
 	private boolean isInitialized = false;
 
@@ -37,6 +51,14 @@ public class BRService extends Service implements LocationListener {
 
 	// status
 	private int userID = 0;
+	private String username;
+	private String team;
+	private boolean alive;
+	private int score;
+	private String token;
+	private Date warnsince;
+	private float[] nearestserum;
+	private String code;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -73,13 +95,15 @@ public class BRService extends Service implements LocationListener {
 			0, // Start immediately
 			dot, short_gap, dot, short_gap, dot, short_gap, dot, short_gap,
 			dot, long_gap };
+	public String wsUrl;
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (!isInitialized) {
 			stateChangeIntent = new Intent(SERVICE_STATE_CHANGED).putExtra(
 					"newState", ServiceState.STARTED);
-
+			mClient = new BRClient();
+			mGson = new Gson();
 			isInitialized = true;
 		}
 		return super.onStartCommand(intent, flags, startId);
@@ -227,6 +251,30 @@ public class BRService extends Service implements LocationListener {
 
 	}
 	
+	class callWSMethodTask extends AsyncTask<NameValuePair, Void, String>{
+		@Override
+		protected String doInBackground(NameValuePair... params) {
+			try {
+				return mClient.callWSMethod(wsUrl, Arrays.asList(params));
+			} catch (IOException e) {
+				Log.e(TAG, "Error calling server", e);
+				return "";
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			handleResponse(result);
+		}
+	}
 	
+	private void handleResponse(String responseString){
+		if("".compareTo(responseString)==0){
+			return;
+		}
+		WSResponse response = mGson.fromJson(responseString, WSResponse.class);
+		
+	}
 
 }
