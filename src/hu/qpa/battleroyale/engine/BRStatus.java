@@ -9,11 +9,11 @@ public class BRStatus implements Serializable{
 	private boolean alive;
 	private int score;
 	private long warnsince;
-	private float[] nearestserum;
+	private double[] nearestserum;
 	private String code;
 	
 	public BRStatus(String username, String team, boolean alive, int score,
-			 long warnsince, float[] nearestserum, String code) {
+			 long warnsince, double[] nearestserum, String code) {
 		super();
 		this.username = username;
 		this.team = team;
@@ -65,11 +65,11 @@ public class BRStatus implements Serializable{
 		this.warnsince = warnsince;
 	}
 
-	public float[] getNearestserum() {
+	public double[] getNearestserum() {
 		return nearestserum;
 	}
 
-	public void setNearestserum(float[] nearestserum) {
+	public void setNearestserum(double[] nearestserum) {
 		this.nearestserum = nearestserum;
 	}
 

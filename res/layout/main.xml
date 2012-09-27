@@ -29,7 +29,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="26dp"
         android:ems="10"
-        android:inputType="number|text" >
+        android:inputType="text" >
 
         <requestFocus />
     </EditText>

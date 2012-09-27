@@ -21,6 +21,8 @@ public class MainActivity extends BRActivity {
 	private TextView tvUsernameTeam;
 	private TextView tvScore;
 	private TextView tvWarn;
+	
+	BRStatus mStatus;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +56,15 @@ public class MainActivity extends BRActivity {
 					@Override
 					public void onClick(View v) {
 						// TODO zombi esetén legközelebbi izé
+						if(mStatus != null){
+					
 						Intent i = new Intent(MainActivity.this,
 								BRMapActivity.class);
+						if(!mStatus.isAlive()){
+							i.putExtra(BRMapActivity.INTENT_KEY_NEAREST_SERUM, mStatus.getNearestserum());
+						}
 						startActivity(i);
-
+						}
 					}
 				});
 
@@ -74,17 +81,17 @@ public class MainActivity extends BRActivity {
 			return;
 		}
 		if (extras.containsKey(EXTRA_STATUS)) {
-			BRStatus status = (BRStatus) extras.get(EXTRA_STATUS);
-			tvScore.setText(status.getScore() + " pont");
-			tvUsernameTeam.setText(status.getUsername() + " ("
-					+ status.getTeam() + ")");
-			Date warnSince = new Date(status.getWarnsince());
+			mStatus = (BRStatus) extras.get(EXTRA_STATUS);
+			tvScore.setText(mStatus.getScore() + " pont");
+			tvUsernameTeam.setText(mStatus.getUsername() + " ("
+					+ mStatus.getTeam() + ")");
+			Date warnSince = new Date(mStatus.getWarnsince());
 			if (warnSince != null) { // TODO mikor kell ez?
 				tvWarn.setText("Utolsó warn: "
 						+ SimpleDateFormat.getDateTimeInstance().format(
 								warnSince));
 			}
-			updateStatusLabel(status.isAlive());
+			updateStatusLabel(mStatus.isAlive());
 		}
 
 		// Bundle extras = intent.getExtras();

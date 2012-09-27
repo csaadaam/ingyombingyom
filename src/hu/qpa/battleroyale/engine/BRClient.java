@@ -80,6 +80,9 @@ public class BRClient {
 	public String callWSMethod(String url, List<? extends NameValuePair> params)
 			throws IOException {
 
+		Log.d(getClass().getSimpleName(),
+				"Sending request with parameters: " + params.toString());
+		
 		String charset = HTTP.UTF_8;
 		HttpPost httpPost = new HttpPost(url);
 		UrlEncodedFormEntity ent = new UrlEncodedFormEntity(params, charset);

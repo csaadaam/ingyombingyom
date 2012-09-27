@@ -12,7 +12,6 @@ import android.os.Bundle;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.OverlayItem;
@@ -22,6 +21,7 @@ public class BRMapActivity extends com.google.android.maps.MapActivity {
 	MyLocationOverlay mmyLocationOverlay;
 
 	public static final String INTENT_KEY_SPELL_SHOW_EVERYBODY = "spell_show_everybody";
+	public static final String INTENT_KEY_NEAREST_SERUM = "nearest_serum";
 
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
 
@@ -40,11 +40,13 @@ public class BRMapActivity extends com.google.android.maps.MapActivity {
 		mMapView.postInvalidate();
 
 		mmyLocationOverlay.runOnFirstFix(new Runnable() {
-            public void run() {
-            	mMapView.getController().setZoom(18);
-            	mMapView.getController().animateTo(mmyLocationOverlay.getMyLocation());
-            }
-        });		handleIntent(getIntent());
+			public void run() {
+				mMapView.getController().setZoom(18);
+				mMapView.getController().animateTo(
+						mmyLocationOverlay.getMyLocation());
+			}
+		});
+		handleIntent(getIntent());
 	}
 
 	private void handleIntent(Intent intent) {
@@ -60,18 +62,18 @@ public class BRMapActivity extends com.google.android.maps.MapActivity {
 		if (extras.containsKey(INTENT_KEY_SPELL_SHOW_EVERYBODY)) {
 
 			// create the overlay of enemies
-			MyItemizedOverlay itemizedOverlay = new MyItemizedOverlay(this
+			MyItemizedOverlay enemisOverlay = new MyItemizedOverlay(this
 					.getResources().getDrawable(
-							android.R.drawable.arrow_up_float), this);
+							android.R.drawable.arrow_up_float), this); //TODO kép
 
 			// add the enemies
-			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(47501000,
+			enemisOverlay.addOverlay(new OverlayItem(new GeoPoint(47501000,
 					19040000), "item1", "ITEM1"));
 
-			mMapView.getOverlays().add(itemizedOverlay);
+			mMapView.getOverlays().add(enemisOverlay);
 			extras.remove(INTENT_KEY_SPELL_SHOW_EVERYBODY);
 
-			final MyItemizedOverlay itemizedOverlay_ = itemizedOverlay;
+			final MyItemizedOverlay itemizedOverlay_ = enemisOverlay;
 
 			// remove markers after 10 seconds
 			new Timer().schedule(new TimerTask() {
@@ -82,6 +84,17 @@ public class BRMapActivity extends com.google.android.maps.MapActivity {
 
 				}
 			}, 10000);
+		}
+		if (extras.containsKey(INTENT_KEY_NEAREST_SERUM)) {
+			MyItemizedOverlay serumOverlay = new MyItemizedOverlay(this
+					.getResources().getDrawable(
+							android.R.drawable.ic_delete), this); //TODO kép
+			double[] nearestSerum = extras
+					.getDoubleArray(INTENT_KEY_NEAREST_SERUM);
+			serumOverlay.addOverlay(new OverlayItem(new GeoPoint(
+					(int) (nearestSerum[0] * 1e6),
+					(int) (nearestSerum[1] * 1e6)), "", "Legközelebbi szérum"));
+			mMapView.getOverlays().add(serumOverlay);
 		}
 
 	}

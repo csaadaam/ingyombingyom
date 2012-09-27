@@ -19,4 +19,5 @@
     <string name="test_intent">test intent</string>
 	<string name="notif_message_title">Új üzenet</string>
 	<string name="notif_message_content">Bökj ide, hogy megnézd</string>
+	<string name="notif_warning_title">Figyelmeztetés</string>
 </resources>
