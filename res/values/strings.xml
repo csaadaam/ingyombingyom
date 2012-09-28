@@ -20,4 +20,6 @@
 	<string name="notif_message_title">Új üzenet</string>
 	<string name="notif_message_content">Bökj ide, hogy megnézd</string>
 	<string name="notif_warning_title">Figyelmeztetés</string>
+	<string name="notif_spell_title">Varázslat</string>
+	<string name="notif_spell_content">10 másodpercig körbenézhetsz</string>
 </resources>

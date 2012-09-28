@@ -5,6 +5,7 @@ import hu.qpa.battleroyale.BRMapActivity;
 import hu.qpa.battleroyale.MessageActivity;
 import hu.qpa.battleroyale.Prefs;
 import hu.qpa.battleroyale.R;
+import hu.qpa.battleroyale.engine.types.Spell;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,8 +22,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -131,16 +130,13 @@ public class BRService extends Service implements LocationListener {
 		PendingIntent contentIntent = PendingIntent.getActivity(this,
 				(int) System.currentTimeMillis(), intent, 0);
 
-		Notification noti = new Notification.Builder(getApplicationContext())
-				.setSmallIcon(smallIcon)
-				.setLargeIcon(
-						BitmapFactory.decodeResource(getResources(),
-								R.drawable.ic_launcher))
-				.setContentTitle(title).setTicker(ticker)
-				.setContentText(message).setVibrate(pattern)
-				.setContentIntent(contentIntent).setAutoCancel(true)
-				.getNotification();
-		mNotificationManager.notify((int)System.currentTimeMillis(), noti);
+		Notification not = new Notification(smallIcon, ticker,
+				System.currentTimeMillis());
+		not.flags |= Notification.FLAG_AUTO_CANCEL;
+		not.number += 1;
+		not.setLatestEventInfo(this, title, message, contentIntent);
+
+		mNotificationManager.notify((int) System.currentTimeMillis(), not);
 	}
 
 	private void startPositioning() {
@@ -155,8 +151,9 @@ public class BRService extends Service implements LocationListener {
 
 	private void sendLocation(Location location) {
 		// TODO
-		Log.d(TAG, "location updated:" + location.getLatitude() + ","
-				+ location.getLongitude());
+		if (location != null)
+			Log.d(TAG, "location updated:" + location.getLatitude() + ","
+					+ location.getLongitude());
 	}
 
 	private void newState(ServiceState state, BRStatus status) {
@@ -179,8 +176,8 @@ public class BRService extends Service implements LocationListener {
 	public void codeEntry(String entry) {
 		new callWSMethodTask().execute(
 				new BasicNameValuePair("action", "entry"),
-				new BasicNameValuePair("token", token),
-				new BasicNameValuePair("code", entry));
+				new BasicNameValuePair("token", token), new BasicNameValuePair(
+						"code", entry));
 	}
 
 	/**
@@ -196,17 +193,19 @@ public class BRService extends Service implements LocationListener {
 		intent.putExtra(BRActivity.EXTRA_MESSAGE, message);
 
 		fireNotification(getString(R.string.notif_message_title),
-				getString(R.string.notif_message_title), message, intent, android.R.drawable.ic_dialog_email);
+				getString(R.string.notif_message_title), message, intent,
+				android.R.drawable.ic_dialog_email);
 
 	}
-	
-	public void handleWarning(String type, String message){
-		//TODO típus
+
+	public void handleWarning(String type, String message) {
+		// TODO típus
 		Intent intent = new Intent(this, MessageActivity.class);
 		intent.putExtra(BRActivity.EXTRA_MESSAGE, message);
 
 		fireNotification(getString(R.string.notif_warning_title),
-				getString(R.string.notif_warning_title), message, intent, android.R.drawable.ic_dialog_alert);
+				getString(R.string.notif_warning_title), message, intent,
+				android.R.drawable.ic_dialog_alert);
 	}
 
 	public void showEnemies(String enemiesJSON) {
@@ -217,7 +216,8 @@ public class BRService extends Service implements LocationListener {
 				"enemies 10.000 48.0000");
 		String spellText = "Láthatod az ellenfeleket 10 mp-ig";
 		String spellTitle = "Varázslat";
-		fireNotification(spellText, spellTitle, spellText, intent, android.R.drawable.ic_dialog_map);
+		fireNotification(spellText, spellTitle, spellText, intent,
+				android.R.drawable.ic_dialog_map);
 
 	}
 
@@ -317,8 +317,8 @@ public class BRService extends Service implements LocationListener {
 				handleEvent(event);
 			}
 		}
-		if(response.warnings != null){
-			for(String[] warning : response.warnings){
+		if (response.warnings != null) {
+			for (String[] warning : response.warnings) {
 				handleWarning(warning[0], warning[1]);
 			}
 		}
@@ -344,23 +344,35 @@ public class BRService extends Service implements LocationListener {
 		processedEvents.add(eventID);
 	}
 
-	private void handleSpell(Object mess) {
-		// TODO
+	private void handleSpell(String message) {
+		Spell spell = mGson.fromJson(message, Spell.class);
+		
+		Intent intent = new Intent(this, BRMapActivity.class);
+		intent.putExtra(BRMapActivity.INTENT_KEY_SPELL, spell);
+
+		fireNotification(getString(R.string.notif_spell_title),
+				getString(R.string.notif_spell_title), getString(R.string.notif_spell_content), intent,
+				android.R.drawable.ic_dialog_map); //TODO rendes ikon
 	}
+	
+	
+	
 
 	private void startUpdateTimer() {
 		mUpdateTask = new TimerTask() {
 
 			@Override
 			public void run() {
-				StatusUpdate status = new StatusUpdate(mLocation.getLatitude(),
-						mLocation.getLongitude(),
-						processedEvents.toArray(new Integer[0]));
-				processedEvents.clear();
-				new callWSMethodTask().execute(new BasicNameValuePair("action",
-						"status"), new BasicNameValuePair("token", token),
-						new BasicNameValuePair("status", mGson.toJson(status)));
-
+				if (mLocation != null) {
+					StatusUpdate status = new StatusUpdate(
+							mLocation.getLatitude(), mLocation.getLongitude(),
+							processedEvents.toArray(new Integer[0]));
+					processedEvents.clear();
+					new callWSMethodTask().execute(new BasicNameValuePair(
+							"action", "status"), new BasicNameValuePair(
+							"token", token), new BasicNameValuePair("status",
+							mGson.toJson(status)));
+				}
 			}
 		};
 		mUpdateTimer.scheduleAtFixedRate(mUpdateTask, 0l,

@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -51,8 +52,7 @@ public class BRActivity extends Activity {
 		ServiceState state = (ServiceState) intent.getExtras()
 				.get(EXTRA_SERVICE_STATE);
 		if (state != null) {
-			Toast.makeText(this, "New state:" + state.name(),
-					Toast.LENGTH_SHORT).show();
+			Log.d(getClass().getSimpleName(), "New state:" + state.name());
 		}
 	}
 

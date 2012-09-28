@@ -1,5 +1,8 @@
 package hu.qpa.battleroyale;
 
+import hu.qpa.battleroyale.engine.types.Point;
+import hu.qpa.battleroyale.engine.types.Spell;
+
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -20,6 +23,7 @@ public class BRMapActivity extends com.google.android.maps.MapActivity {
 	MapView mMapView;
 	MyLocationOverlay mmyLocationOverlay;
 
+	public static final String INTENT_KEY_SPELL = "spell";
 	public static final String INTENT_KEY_SPELL_SHOW_EVERYBODY = "spell_show_everybody";
 	public static final String INTENT_KEY_NEAREST_SERUM = "nearest_serum";
 
@@ -64,7 +68,8 @@ public class BRMapActivity extends com.google.android.maps.MapActivity {
 			// create the overlay of enemies
 			MyItemizedOverlay enemisOverlay = new MyItemizedOverlay(this
 					.getResources().getDrawable(
-							android.R.drawable.arrow_up_float), this); //TODO kép
+							android.R.drawable.arrow_up_float), this); // TODO
+																		// kép
 
 			// add the enemies
 			enemisOverlay.addOverlay(new OverlayItem(new GeoPoint(47501000,
@@ -85,10 +90,72 @@ public class BRMapActivity extends com.google.android.maps.MapActivity {
 				}
 			}, 10000);
 		}
+		if (extras.containsKey(INTENT_KEY_SPELL)) {
+			Spell spell = (Spell) extras.getSerializable(INTENT_KEY_SPELL);
+			final MyItemizedOverlay friendOverlay = new MyItemizedOverlay(this
+					.getResources().getDrawable(
+							android.R.drawable.btn_star_big_on), this);
+			final MyItemizedOverlay enemyOverlay = new MyItemizedOverlay(this
+					.getResources().getDrawable(
+							android.R.drawable.ic_dialog_alert), this);
+			final MyItemizedOverlay itemOverlay = new MyItemizedOverlay(this
+					.getResources()
+					.getDrawable(android.R.drawable.ic_input_add), this);
+
+			boolean friendsEmpty = true;
+			boolean enemiesEmpty = true;
+			boolean itemsEmpty = true;
+
+			for (Point p : spell.getParameter()) {
+				if ("friend".compareTo(p.getType()) == 0) {
+					friendOverlay.addOverlay(new OverlayItem(new GeoPoint(
+							(int) (p.getLatitude() * 1e6), (int) (p
+									.getLongitude() * 1e6)), p.getName(), p
+							.getType()));
+					friendsEmpty = false;
+				} else if ("enemy".compareTo(p.getType()) == 0) {
+					enemyOverlay.addOverlay(new OverlayItem(new GeoPoint(
+							(int) (p.getLatitude() * 1e6), (int) (p
+									.getLongitude() * 1e6)), p.getName(), p
+							.getType()));
+					enemiesEmpty = false;
+				} else if ("item".compareTo(p.getType()) == 0) {
+					itemOverlay.addOverlay(new OverlayItem(new GeoPoint(
+							(int) (p.getLatitude() * 1e6), (int) (p
+									.getLongitude() * 1e6)), p.getName(), p
+							.getType()));
+					itemsEmpty = false;
+				}
+			}
+			if (!friendsEmpty) {
+				mMapView.getOverlays().add(friendOverlay);
+			}
+			if (!enemiesEmpty) {
+				mMapView.getOverlays().add(enemyOverlay);
+			}
+			if (!itemsEmpty) {
+				mMapView.getOverlays().add(itemOverlay);
+			}
+			extras.remove(INTENT_KEY_SPELL);
+
+			// remove markers after 10 seconds
+			 new Timer().schedule(new TimerTask() {
+			
+			 @Override
+			 public void run() {
+			 mMapView.getOverlays().remove(friendOverlay);
+			 mMapView.getOverlays().remove(enemyOverlay);
+			 mMapView.getOverlays().remove(itemOverlay);
+			
+			 }
+			 }, 10000);
+
+		}
 		if (extras.containsKey(INTENT_KEY_NEAREST_SERUM)) {
 			MyItemizedOverlay serumOverlay = new MyItemizedOverlay(this
 					.getResources().getDrawable(
-							android.R.drawable.ic_delete), this); //TODO kép
+							android.R.drawable.ic_menu_directions), this); // TODO
+																			// kép
 			double[] nearestSerum = extras
 					.getDoubleArray(INTENT_KEY_NEAREST_SERUM);
 			serumOverlay.addOverlay(new OverlayItem(new GeoPoint(
