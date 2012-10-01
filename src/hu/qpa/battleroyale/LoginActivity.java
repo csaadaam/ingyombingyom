@@ -2,6 +2,7 @@ package hu.qpa.battleroyale;
 
 import hu.qpa.battleroyale.engine.BRService.ServiceState;
 import hu.qpa.battleroyale.engine.BRStatus;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class LoginActivity extends BRActivity {
+	
+	ProgressDialog pd;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +29,7 @@ public class LoginActivity extends BRActivity {
 									.getText().toString();
 							String password = ((EditText) findViewById(R.id.et_password))
 									.getText().toString();
+							pd=ProgressDialog.show(LoginActivity.this, "login", "kérlek várj...");
 							mService.login(username, password);
 							
 						} else {
@@ -43,6 +47,9 @@ public class LoginActivity extends BRActivity {
 		super.handleStateChange(intent);
 		Bundle extras = intent.getExtras();
 		if (extras != null && extras.containsKey(EXTRA_SERVICE_STATE)) {
+			if(pd!=null){
+				pd.dismiss();
+			}
 			ServiceState newState = (ServiceState) extras.get(EXTRA_SERVICE_STATE);
 			Intent i = new Intent(this, MainActivity.class);
 			switch (newState) {

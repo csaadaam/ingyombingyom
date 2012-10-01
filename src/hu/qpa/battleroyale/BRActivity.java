@@ -18,7 +18,7 @@ import android.view.MenuItem;
 public class BRActivity extends Activity {
 	public static final String EXTRA_USER_ID = "user_id";
 	public static final String EXTRA_STATUS = "status";
-	public static final String EXTRA_SERVICE_STATE="service_state";
+	public static final String EXTRA_SERVICE_STATE = "service_state";
 	public static final String EXTRA_MESSAGE = "message";
 
 	BRService mService;
@@ -48,10 +48,12 @@ public class BRActivity extends Activity {
 	private IntentFilter stateChangeFilter;
 
 	void handleStateChange(Intent intent) {
-		ServiceState state = (ServiceState) intent.getExtras()
-				.get(EXTRA_SERVICE_STATE);
-		if (state != null) {
-			Log.d(getClass().getSimpleName(), "New state:" + state.name());
+		if (Prefs.debug) {
+			ServiceState state = (ServiceState) intent.getExtras().get(
+					EXTRA_SERVICE_STATE);
+			if (state != null) {
+				Log.d(getClass().getSimpleName(), "New state:" + state.name());
+			}
 		}
 	}
 
@@ -86,7 +88,7 @@ public class BRActivity extends Activity {
 		if (mService != null) {
 			handleStateChange(mService.getStateChangeIntent());
 		}
-		
+
 	}
 
 	@Override
@@ -110,6 +112,9 @@ public class BRActivity extends Activity {
 			if (mService != null) {
 				mService.logout();
 			}
+			break;
+		case R.id.credits:
+			startActivity(new Intent(this, CreditsActivity.class));
 			break;
 		}
 		return true;

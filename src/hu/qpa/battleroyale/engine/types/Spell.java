@@ -4,12 +4,12 @@ import java.io.Serializable;
 import java.util.List;
 
 public class Spell implements Serializable{
-	String ID;
+	int ID;
 	List<Point> Parameter;
-	public String getID() {
+	public int getID() {
 		return ID;
 	}
-	public void setID(String iD) {
+	public void setID(int iD) {
 		ID = iD;
 	}
 	public List<Point> getParameter() {

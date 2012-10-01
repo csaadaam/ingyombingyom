@@ -11,5 +11,10 @@
         android:enabled="true"
         android:title="@string/logout">
     </item>
+    <item
+        android:id="@+id/credits"
+        android:enabled="true"
+        android:title="@string/credits">
+    </item>
 
 </menu>

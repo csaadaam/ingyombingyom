@@ -1,5 +1,6 @@
 package hu.qpa.battleroyale.engine;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WSResponse {
@@ -13,7 +14,7 @@ public class WSResponse {
 	List<String[]> events;
 	List<String[]> warnings;
 	boolean nokill;
-	List<double[]> borders;
+	ArrayList<double[]> borders;
 	String lastupdate;
 	double[] nearestserum;
 	String code;

@@ -4,6 +4,7 @@ import hu.qpa.battleroyale.engine.BRStatus;
 import hu.qpa.battleroyale.engine.BRService.ServiceState;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import android.app.AlertDialog;
@@ -61,8 +62,12 @@ public class MainActivity extends BRActivity {
 					
 						Intent i = new Intent(MainActivity.this,
 								BRMapActivity.class);
+						
+						
+						i.putExtra(BRMapActivity.INTENT_KEY_BORDERS, mStatus.getBorders());
 						if(!mStatus.isAlive()){
 							i.putExtra(BRMapActivity.INTENT_KEY_NEAREST_SERUM, mStatus.getNearestserum());
+							
 						}
 						startActivity(i);
 						}

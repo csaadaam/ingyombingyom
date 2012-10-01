@@ -24,8 +24,13 @@
             android:name=".BRMapActivity"
             android:label="@string/title_activity_map" >
         </activity>
-        <activity android:name=".MainActivity" android:screenOrientation="portrait">
-            
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".CreditsActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity android:name=".LoginActivity" >
             <intent-filter>
@@ -34,9 +39,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MessageActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            
+        <activity
+            android:name=".MessageActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
         </activity>
     </application>
 

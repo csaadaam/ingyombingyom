@@ -1,5 +1,7 @@
 package hu.qpa.battleroyale.engine;
 
+import hu.qpa.battleroyale.Prefs;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,10 +81,11 @@ public class BRClient {
 	 */
 	public String callWSMethod(String url, List<? extends NameValuePair> params)
 			throws IOException {
+		if (Prefs.debug) {
+			Log.d(getClass().getSimpleName(),
+					"Sending request with parameters: " + params.toString());
+		}
 
-		Log.d(getClass().getSimpleName(),
-				"Sending request with parameters: " + params.toString());
-		
 		String charset = HTTP.UTF_8;
 		HttpPost httpPost = new HttpPost(url);
 		UrlEncodedFormEntity ent = new UrlEncodedFormEntity(params, charset);

@@ -140,27 +140,26 @@ public class BRService extends Service implements LocationListener {
 		not.flags |= Notification.FLAG_AUTO_CANCEL;
 		not.number += 1;
 		not.setLatestEventInfo(this, title, message, contentIntent);
-		
 
 		mNotificationManager.notify((int) System.currentTimeMillis(), not);
 	}
 
 	private void startPositioning() {
 		mLocation = mLocationManager
-				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		sendLocation(mLocationManager
-				.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+				.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//		sendLocation(mLocationManager
+//				.getLastKnownLocation(LocationManager.GPS_PROVIDER));
 
 		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
 				5000, 0, this);
 	}
 
-	private void sendLocation(Location location) {
-		// TODO
-		if (location != null)
-			Log.d(TAG, "location updated:" + location.getLatitude() + ","
-					+ location.getLongitude());
-	}
+//	private void sendLocation(Location location) {
+//		// TODO
+//		if (location != null)
+//			Log.d(TAG, "location updated:" + location.getLatitude() + ","
+//					+ location.getLongitude());
+//	}
 
 	private void newState(ServiceState state, BRStatus status) {
 		stateChangeIntent = new Intent(SERVICE_STATE_CHANGED).putExtra(
@@ -214,19 +213,19 @@ public class BRService extends Service implements LocationListener {
 				android.R.drawable.ic_dialog_alert);
 	}
 
-	@Deprecated
-	public void showEnemies(String enemiesJSON) {
-		// TODO
-
-		Intent intent = new Intent(this, BRMapActivity.class);
-		intent.putExtra(BRMapActivity.INTENT_KEY_SPELL_SHOW_EVERYBODY,
-				"enemies 10.000 48.0000");
-		String spellText = "Láthatod az ellenfeleket 10 mp-ig";
-		String spellTitle = "Varázslat";
-		fireNotification(spellText, spellTitle, spellText, intent,
-				android.R.drawable.ic_dialog_map);
-
-	}
+//	@Deprecated
+//	public void showEnemies(String enemiesJSON) {
+//		// TODO
+//
+//		Intent intent = new Intent(this, BRMapActivity.class);
+//		intent.putExtra(BRMapActivity.INTENT_KEY_SPELL_SHOW_EVERYBODY,
+//				"enemies 10.000 48.0000");
+//		String spellText = "Láthatod az ellenfeleket 10 mp-ig";
+//		String spellTitle = "Varázslat";
+//		fireNotification(spellText, spellTitle, spellText, intent,
+//				android.R.drawable.ic_dialog_map);
+//
+//	}
 
 	@Override
 	public void onLocationChanged(Location location) {
@@ -290,7 +289,9 @@ public class BRService extends Service implements LocationListener {
 		if (responseString.endsWith("\n")) {
 			responseString = responseString.split("\n")[0];
 		}
-		Log.d(TAG, "response:" + responseString);
+		if (Prefs.debug) {
+			Log.d(TAG, "response:" + responseString);
+		}
 		if ("".compareTo(responseString) == 0) {
 			return;
 		}
@@ -332,9 +333,17 @@ public class BRService extends Service implements LocationListener {
 			e.printStackTrace();
 		}
 
+		// teszt
+		// ArrayList<double[]>borders = new ArrayList<double[]>();
+		// borders.add(new double[]{47.5513, 18.9934});
+		// borders.add(new double[]{47.55228, 18.9991});
+		// borders.add(new double[]{47.55118, 19.0055});
+		// borders.add(new double[]{47.54791, 19.0036});
+		// borders.add(new double[]{47.54736, 18.9964});
+
 		BRStatus status = new BRStatus(response.username, response.team,
 				isAlive_, response.score, response.lastupdate,
-				response.nearestserum, response.code);
+				response.nearestserum, response.code, response.borders);
 		this.token = response.token;
 		if (response.events != null) {
 			for (String[] event : response.events) {
@@ -346,14 +355,7 @@ public class BRService extends Service implements LocationListener {
 				handleWarning(warning[0], warning[1]);
 			}
 		}
-		if (response.borders != null) {
-			for (double fence[] : response.borders)
-				;
-			/*
-			 * Toast.makeText(getApplicationContext(), "Vannak hatarok:" +
-			 * fence[1] + " " + fence[0], Toast.LENGTH_SHORT).show();
-			 */
-		}
+
 		if (response.alive == 1) {
 			newState(ServiceState.ALIVE, status);
 		} else {
@@ -388,33 +390,45 @@ public class BRService extends Service implements LocationListener {
 	}
 
 	private void handleSpell(String message) {
-//		Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT)
-//				.show();
+		// Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT)
+		// .show();
 		Spell spell = null;
 		try {
 			spell = mGson.fromJson(message, Spell.class);
 		} catch (JsonParseException e) {
 			Log.w(TAG, "", e);
 		}
-		
 
 		Intent intent = new Intent(this, BRMapActivity.class);
-		if(spell != null){//spell
+		if (spell != null) {// spell
 			intent.putExtra(BRMapActivity.INTENT_KEY_SPELL, spell);
-		
+			String spellMessage = "";
+			switch (spell.getID()) {
+			case 2:
+				spellMessage = "Radar: " + Prefs.spellTimeout
+						+ " másodpercig láthatsz mindenkit";
+				break;
+			case 3:
+				spellMessage = "Kilátó: Láthatod a csapattársad";
+				break;
+			case 4:
+				spellMessage = "Kincskeresõ: Láthatod a legközelebbi tárgyat";
+				break;
+			}
 
-		fireNotification(getString(R.string.notif_spell_title),
-				getString(R.string.notif_spell_title),
-				getString(R.string.notif_spell_content), intent,
-				android.R.drawable.ic_dialog_map); // TODO rendes ikon
-		}
-		else{// üzenet a csapattól
-//			Log.d(TAG, message);
-//			Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-			Map<String, String> messageMap = mGson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
-			
-			handleMessage(messageMap.get("Parameter"));
-			
+			fireNotification(getString(R.string.notif_spell_title),
+					getString(R.string.notif_spell_title), spellMessage,
+					intent, android.R.drawable.ic_dialog_map);
+		} else {// üzenet a csapattól
+			// Log.d(TAG, message);
+			// Toast.makeText(getApplicationContext(), message,
+			// Toast.LENGTH_SHORT).show();
+			Map<String, String> messageMap = mGson.fromJson(message,
+					new TypeToken<Map<String, String>>() {
+					}.getType());
+
+			handleMessage("Üzenet a csapattól: " + messageMap.get("Parameter"));
+
 		}
 
 	}

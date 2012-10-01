@@ -1,7 +1,8 @@
 package hu.qpa.battleroyale.engine;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BRStatus implements Serializable{
 	private String username;
@@ -11,9 +12,10 @@ public class BRStatus implements Serializable{
 	private String warnsince;
 	private double[] nearestserum;
 	private String code;
+	private ArrayList<double[]> borders;
 	
 	public BRStatus(String username, String team, boolean alive, int score,
-			 String warnsince, double[] nearestserum, String code) {
+			 String warnsince, double[] nearestserum, String code, ArrayList<double[]> borders) {
 		super();
 		this.username = username;
 		this.team = team;
@@ -22,6 +24,7 @@ public class BRStatus implements Serializable{
 		this.warnsince = warnsince;
 		this.nearestserum = nearestserum;
 		this.code = code;
+		this.borders = borders;
 	}
 
 	public String getUsername() {
@@ -79,6 +82,14 @@ public class BRStatus implements Serializable{
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+	public ArrayList<double[]> getBorders() {
+		return borders;
+	}
+
+	public void setBorders(ArrayList<double[]> borders) {
+		this.borders = borders;
 	}
 	
 	
