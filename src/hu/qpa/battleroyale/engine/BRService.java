@@ -341,7 +341,7 @@ public class BRService extends Service implements LocationListener {
 		// borders.add(new double[]{47.54791, 19.0036});
 		// borders.add(new double[]{47.54736, 18.9964});
 
-		BRStatus status = new BRStatus(response.username, response.team,
+		status = new BRStatus(response.username, response.team,
 				isAlive_, response.score, response.lastupdate,
 				response.nearestserum, response.code, response.borders, response.cspeed);
 		this.token = response.token;
@@ -402,6 +402,7 @@ public class BRService extends Service implements LocationListener {
 		Intent intent = new Intent(this, BRMapActivity.class);
 		if (spell != null) {// spell
 			intent.putExtra(BRMapActivity.INTENT_KEY_SPELL, spell);
+			intent.putExtra(BRMapActivity.INTENT_KEY_BORDERS, status.getBorders());
 			String spellMessage = "";
 			switch (spell.getID()) {
 			case 2:
