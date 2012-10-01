@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class LoginActivity extends BRActivity {
-	
+
 	ProgressDialog pd;
 
 	@Override
@@ -29,9 +29,15 @@ public class LoginActivity extends BRActivity {
 									.getText().toString();
 							String password = ((EditText) findViewById(R.id.et_password))
 									.getText().toString();
-							pd=ProgressDialog.show(LoginActivity.this, "login", "kérlek várj...");
-							mService.login(username, password);
-							
+							if ("".compareTo(username) != 0) {
+								pd = ProgressDialog.show(LoginActivity.this,
+										"login", "kérlek várj...");
+								mService.login(username, password);
+							} else {
+								Toast.makeText(LoginActivity.this, "Ki vagy?",
+										Toast.LENGTH_SHORT).show();
+							}
+
 						} else {
 							Toast.makeText(LoginActivity.this,
 									"Hiba! Nem fut a szolgáltatás!",
@@ -43,22 +49,23 @@ public class LoginActivity extends BRActivity {
 
 	@Override
 	void handleStateChange(Intent intent) {
-//		Toast.makeText(LoginActivity.this,"handle state changed",Toast.LENGTH_SHORT).show();
+		// Toast.makeText(LoginActivity.this,"handle state changed",Toast.LENGTH_SHORT).show();
 		super.handleStateChange(intent);
 		Bundle extras = intent.getExtras();
 		if (extras != null && extras.containsKey(EXTRA_SERVICE_STATE)) {
-			if(pd!=null){
+			if (pd != null) {
 				pd.dismiss();
 			}
-			ServiceState newState = (ServiceState) extras.get(EXTRA_SERVICE_STATE);
+			ServiceState newState = (ServiceState) extras
+					.get(EXTRA_SERVICE_STATE);
 			Intent i = new Intent(this, MainActivity.class);
 			switch (newState) {
 			case ALIVE:
-				
+
 			case ZOMBIE:
-			
+
 				i.putExtra(EXTRA_SERVICE_STATE, newState);
-				i.putExtra(EXTRA_STATUS, (BRStatus)extras.get(EXTRA_STATUS));
+				i.putExtra(EXTRA_STATUS, (BRStatus) extras.get(EXTRA_STATUS));
 				startActivity(i);
 				break;
 			default:

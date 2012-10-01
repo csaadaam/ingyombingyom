@@ -293,6 +293,8 @@ public class BRService extends Service implements LocationListener {
 			Log.d(TAG, "response:" + responseString);
 		}
 		if ("".compareTo(responseString) == 0) {
+			Toast.makeText(getApplicationContext(), "Rossz felhasználónév vagy jelszó, vagy nincs net, vagy valami más hiba :)", Toast.LENGTH_LONG).show();
+			newState(ServiceState.STARTED, null);
 			return;
 		}
 		if (responseString.length() == 10) {
