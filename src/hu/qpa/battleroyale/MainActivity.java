@@ -23,6 +23,7 @@ public class MainActivity extends BRActivity {
 	private TextView tvUsernameTeam;
 	private TextView tvScore;
 	private TextView tvWarn;
+	private TextView tvSpeed;
 	
 	BRStatus mStatus;
 
@@ -36,6 +37,7 @@ public class MainActivity extends BRActivity {
 		tvUsernameTeam = (TextView) findViewById(R.id.tv_user_team);
 		tvScore = (TextView) findViewById(R.id.tv_score);
 		tvWarn = (TextView) findViewById(R.id.tv_last_warn);
+		tvSpeed = (TextView) findViewById(R.id.tv_speed);
 
 		findViewById(R.id.btn_entry).setOnClickListener(
 				new View.OnClickListener() {
@@ -97,6 +99,7 @@ public class MainActivity extends BRActivity {
 				tvWarn.setText("Utolsó warn: "+
 						mStatus.getWarnsince());
 			}
+			tvSpeed.setText("Sebesség: "+mStatus.getCspeed()+" km/h");
 			updateStatusLabel(mStatus.isAlive());
 		}
 

@@ -13,9 +13,10 @@ public class BRStatus implements Serializable{
 	private double[] nearestserum;
 	private String code;
 	private ArrayList<double[]> borders;
+	private double cspeed;
 	
 	public BRStatus(String username, String team, boolean alive, int score,
-			 String warnsince, double[] nearestserum, String code, ArrayList<double[]> borders) {
+			 String warnsince, double[] nearestserum, String code, ArrayList<double[]> borders, double cspeed) {
 		super();
 		this.username = username;
 		this.team = team;
@@ -25,7 +26,19 @@ public class BRStatus implements Serializable{
 		this.nearestserum = nearestserum;
 		this.code = code;
 		this.borders = borders;
+		this.cspeed = cspeed;
 	}
+	
+
+	public double getCspeed() {
+		return cspeed;
+	}
+
+
+	public void setCspeed(double cspeed) {
+		this.cspeed = cspeed;
+	}
+
 
 	public String getUsername() {
 		return username;

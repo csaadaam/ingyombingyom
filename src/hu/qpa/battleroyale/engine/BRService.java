@@ -343,7 +343,7 @@ public class BRService extends Service implements LocationListener {
 
 		BRStatus status = new BRStatus(response.username, response.team,
 				isAlive_, response.score, response.lastupdate,
-				response.nearestserum, response.code, response.borders);
+				response.nearestserum, response.code, response.borders, response.cspeed);
 		this.token = response.token;
 		if (response.events != null) {
 			for (String[] event : response.events) {

@@ -18,4 +18,5 @@ public class WSResponse {
 	String lastupdate;
 	double[] nearestserum;
 	String code;
+	double cspeed; 
 }

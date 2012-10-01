@@ -33,14 +33,22 @@
 
         <requestFocus />
     </EditText>
-
+<TextView
+        android:id="@+id/tv_speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/tv_last_warn"
+        android:text="speed"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
     <TextView
         android:id="@+id/tv_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/tv_last_warn"
+        android:layout_above="@+id/tv_speed"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="10dp"
         android:text="@string/alive"
         android:textSize="20pt"
         android:textStyle="bold" />
