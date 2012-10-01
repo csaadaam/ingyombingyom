@@ -27,6 +27,7 @@ public class LoginActivity extends BRActivity {
 							String password = ((EditText) findViewById(R.id.et_password))
 									.getText().toString();
 							mService.login(username, password);
+							
 						} else {
 							Toast.makeText(LoginActivity.this,
 									"Hiba! Nem fut a szolgáltatás!",
@@ -38,14 +39,17 @@ public class LoginActivity extends BRActivity {
 
 	@Override
 	void handleStateChange(Intent intent) {
+		Toast.makeText(LoginActivity.this,"handle state changed",Toast.LENGTH_SHORT).show();
 		super.handleStateChange(intent);
 		Bundle extras = intent.getExtras();
 		if (extras != null && extras.containsKey(EXTRA_SERVICE_STATE)) {
 			ServiceState newState = (ServiceState) extras.get(EXTRA_SERVICE_STATE);
+			Intent i = new Intent(this, MainActivity.class);
 			switch (newState) {
 			case ALIVE:
+				
 			case ZOMBIE:
-				Intent i = new Intent(this, MainActivity.class);
+			
 				i.putExtra(EXTRA_SERVICE_STATE, newState);
 				i.putExtra(EXTRA_STATUS, (BRStatus)extras.get(EXTRA_STATUS));
 				startActivity(i);

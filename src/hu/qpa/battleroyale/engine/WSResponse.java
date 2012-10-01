@@ -5,7 +5,7 @@ import java.util.List;
 public class WSResponse {
 	String username;
 	String team;
-	boolean alive;
+	int alive;
 	double[] pos;
 	String items; // TODO ez mi?
 	int score;
@@ -14,7 +14,7 @@ public class WSResponse {
 	List<String[]> warnings;
 	boolean nokill;
 	
-	long warnsince;
+	String lastupdate;
 	double[] nearestserum;
 	String code;
 }

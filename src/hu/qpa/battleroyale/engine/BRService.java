@@ -8,8 +8,11 @@ import hu.qpa.battleroyale.R;
 import hu.qpa.battleroyale.engine.types.Spell;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -250,7 +253,12 @@ public class BRService extends Service implements LocationListener {
 	}
 
 	public void logout() {
-		mUpdateTimer.cancel();
+		if (mUpdateTimer != null)
+		{
+			mUpdateTimer.cancel();
+			mUpdateTimer.purge();
+			mUpdateTimer=null;
+		}
 		mLocationManager.removeUpdates(this);
 		newState(ServiceState.STARTED, null);
 
@@ -308,8 +316,20 @@ public class BRService extends Service implements LocationListener {
 					"Hibás válasz a szervertõl!", Toast.LENGTH_SHORT).show();
 			return;
 		}
+		boolean isAlive_=response.alive==1;
+		Date date_=new Date(1970,1,1);
+		try {
+			
+			if(response.lastupdate==null)
+				response.lastupdate="1970-01-01 1:00:00";
+			date_ = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(response.lastupdate);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		BRStatus status = new BRStatus(response.username, response.team,
-				response.alive, response.score, response.warnsince,
+				isAlive_, response.score, response.lastupdate,
 				response.nearestserum, response.code);
 		this.token = response.token;
 		if (response.events != null) {
@@ -322,8 +342,7 @@ public class BRService extends Service implements LocationListener {
 				handleWarning(warning[0], warning[1]);
 			}
 		}
-
-		if (response.alive) {
+		if (response.alive==1) {
 			newState(ServiceState.ALIVE, status);
 		} else {
 			newState(ServiceState.ZOMBIE, status);
@@ -339,6 +358,17 @@ public class BRService extends Service implements LocationListener {
 			handleMessage(message);
 		} else if ("spell".compareTo(eventType) == 0) {
 			handleSpell(message);
+		} else if("killed".compareTo(eventType) == 0){
+			handleMessage("Megölted "+message+"t");
+		}else if("killed by".compareTo(eventType) == 0){
+			if( message.contains(":"))
+			{
+				handleWarning("killed by","Megölt: "+ message.substring(0, message.indexOf(":")));
+				handleMessage("Megölt: "+ message.substring(0, message.indexOf(":")));
+			} else{
+				handleWarning("killed by","Megölt: "+ message);
+				handleMessage("Megölt: "+ message);
+			}
 		}
 
 		processedEvents.add(eventID);
@@ -375,6 +405,8 @@ public class BRService extends Service implements LocationListener {
 				}
 			}
 		};
+		if(mUpdateTimer == null)
+			mUpdateTimer = new Timer();
 		mUpdateTimer.scheduleAtFixedRate(mUpdateTask, 0l,
 				Prefs.refreshInterval * 1000);
 

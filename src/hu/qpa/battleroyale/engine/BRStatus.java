@@ -8,12 +8,12 @@ public class BRStatus implements Serializable{
 	private String team;
 	private boolean alive;
 	private int score;
-	private long warnsince;
+	private String warnsince;
 	private double[] nearestserum;
 	private String code;
 	
 	public BRStatus(String username, String team, boolean alive, int score,
-			 long warnsince, double[] nearestserum, String code) {
+			 String warnsince, double[] nearestserum, String code) {
 		super();
 		this.username = username;
 		this.team = team;
@@ -57,11 +57,11 @@ public class BRStatus implements Serializable{
 	}
 
 
-	public long getWarnsince() {
+	public String getWarnsince() {
 		return warnsince;
 	}
 
-	public void setWarnsince(long warnsince) {
+	public void setWarnsince(String warnsince) {
 		this.warnsince = warnsince;
 	}
 

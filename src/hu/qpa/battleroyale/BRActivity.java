@@ -14,7 +14,6 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 public class BRActivity extends Activity {
 	public static final String EXTRA_USER_ID = "user_id";
@@ -87,6 +86,7 @@ public class BRActivity extends Activity {
 		if (mService != null) {
 			handleStateChange(mService.getStateChangeIntent());
 		}
+		
 	}
 
 	@Override

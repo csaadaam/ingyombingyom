@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends BRActivity {
 
@@ -85,11 +86,11 @@ public class MainActivity extends BRActivity {
 			tvScore.setText(mStatus.getScore() + " pont");
 			tvUsernameTeam.setText(mStatus.getUsername() + " ("
 					+ mStatus.getTeam() + ")");
-			Date warnSince = new Date(mStatus.getWarnsince());
-			if (warnSince != null) { // TODO mikor kell ez?
-				tvWarn.setText("Utolsó warn: "
-						+ SimpleDateFormat.getDateTimeInstance().format(
-								warnSince));
+			mStatus.getWarnsince();
+			if (mStatus.getWarnsince() != null &&  mStatus.getTeam() != "rendezo") { // TODO mikor kell ez?
+				
+				tvWarn.setText("Utolsó warn: "+
+						mStatus.getWarnsince());
 			}
 			updateStatusLabel(mStatus.isAlive());
 		}
@@ -128,6 +129,7 @@ public class MainActivity extends BRActivity {
 	}
 
 	private void updateStatusLabel(boolean alive) {
+		
 		String label = "élõ";
 		if (alive) {
 			label = "élõ";
@@ -139,14 +141,19 @@ public class MainActivity extends BRActivity {
 
 	@Override
 	void handleStateChange(Intent intent) {
+		updateUI(intent);
 		super.handleStateChange(intent);
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
 			ServiceState state = (ServiceState) extras.get(EXTRA_SERVICE_STATE);
+			//Toast.makeText(MainActivity.this,extras.toString(), Toast.LENGTH_SHORT).show();
 			switch (state) {
 			case ALIVE:
+				
 				break;
 			case ZOMBIE:
+				
+				//TODO nearest serum
 				break;
 			case STARTED:
 				finish();
