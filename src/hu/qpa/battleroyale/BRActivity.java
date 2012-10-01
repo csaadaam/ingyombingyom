@@ -111,16 +111,6 @@ public class BRActivity extends Activity {
 				mService.logout();
 			}
 			break;
-		case R.id.test_intent:
-			if (mService != null) {
-				mService.showEnemies("");
-			}
-			break;
-		case R.id.menu_test_message:
-			if (mService != null) {
-				mService.handleMessage("Lorem ipsum dolor sit amet, consectetur adipiscing volutpat.");
-			}
-			break;
 		}
 		return true;
 	}

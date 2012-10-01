@@ -13,7 +13,7 @@ public class WSResponse {
 	List<String[]> events;
 	List<String[]> warnings;
 	boolean nokill;
-	
+	List<double[]> borders;
 	String lastupdate;
 	double[] nearestserum;
 	String code;

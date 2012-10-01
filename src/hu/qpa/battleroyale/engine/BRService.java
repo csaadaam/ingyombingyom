@@ -6,6 +6,7 @@ import hu.qpa.battleroyale.MessageActivity;
 import hu.qpa.battleroyale.Prefs;
 import hu.qpa.battleroyale.R;
 import hu.qpa.battleroyale.engine.types.Spell;
+import hu.qpa.battleroyale.engine.types.SpellMessage;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -253,11 +254,10 @@ public class BRService extends Service implements LocationListener {
 	}
 
 	public void logout() {
-		if (mUpdateTimer != null)
-		{
+		if (mUpdateTimer != null) {
 			mUpdateTimer.cancel();
 			mUpdateTimer.purge();
-			mUpdateTimer=null;
+			mUpdateTimer = null;
 		}
 		mLocationManager.removeUpdates(this);
 		newState(ServiceState.STARTED, null);
@@ -316,18 +316,19 @@ public class BRService extends Service implements LocationListener {
 					"Hibás válasz a szervertõl!", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		boolean isAlive_=response.alive==1;
-		Date date_=new Date(1970,1,1);
+		boolean isAlive_ = response.alive == 1;
+		Date date_ = new Date(1970, 1, 1);
 		try {
-			
-			if(response.lastupdate==null)
-				response.lastupdate="1970-01-01 1:00:00";
-			date_ = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(response.lastupdate);
+
+			if (response.lastupdate == null)
+				response.lastupdate = "1970-01-01 1:00:00";
+			date_ = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+					.parse(response.lastupdate);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		BRStatus status = new BRStatus(response.username, response.team,
 				isAlive_, response.score, response.lastupdate,
 				response.nearestserum, response.code);
@@ -342,7 +343,13 @@ public class BRService extends Service implements LocationListener {
 				handleWarning(warning[0], warning[1]);
 			}
 		}
-		if (response.alive==1) {
+		if (response.borders != null) {
+			for (double fence[] : response.borders);
+				/*Toast.makeText(getApplicationContext(),
+						"Vannak hatarok:" + fence[1] + " " + fence[0],
+						Toast.LENGTH_SHORT).show();*/
+		}
+		if (response.alive == 1) {
 			newState(ServiceState.ALIVE, status);
 		} else {
 			newState(ServiceState.ZOMBIE, status);
@@ -358,16 +365,17 @@ public class BRService extends Service implements LocationListener {
 			handleMessage(message);
 		} else if ("spell".compareTo(eventType) == 0) {
 			handleSpell(message);
-		} else if("killed".compareTo(eventType) == 0){
-			handleMessage("Megölted "+message+"t");
-		}else if("killed by".compareTo(eventType) == 0){
-			if( message.contains(":"))
-			{
-				handleWarning("killed by","Megölt: "+ message.substring(0, message.indexOf(":")));
-				handleMessage("Megölt: "+ message.substring(0, message.indexOf(":")));
-			} else{
-				handleWarning("killed by","Megölt: "+ message);
-				handleMessage("Megölt: "+ message);
+		} else if ("killed".compareTo(eventType) == 0) {
+			handleMessage("Megölted " + message + "t");
+		} else if ("killed by".compareTo(eventType) == 0) {
+			if (message.contains(":")) {
+				handleWarning("killed by",
+						"Megölt: " + message.substring(0, message.indexOf(":")));
+				handleMessage("Megölt: "
+						+ message.substring(0, message.indexOf(":")));
+			} else {
+				handleWarning("killed by", "Megölt: " + message);
+				handleMessage("Megölt: " + message);
 			}
 		}
 
@@ -375,18 +383,19 @@ public class BRService extends Service implements LocationListener {
 	}
 
 	private void handleSpell(String message) {
+		Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT)
+				.show();
 		Spell spell = mGson.fromJson(message, Spell.class);
 		
-		Intent intent = new Intent(this, BRMapActivity.class);
-		intent.putExtra(BRMapActivity.INTENT_KEY_SPELL, spell);
+			Intent intent = new Intent(this, BRMapActivity.class);
+			intent.putExtra(BRMapActivity.INTENT_KEY_SPELL, spell);
 
-		fireNotification(getString(R.string.notif_spell_title),
-				getString(R.string.notif_spell_title), getString(R.string.notif_spell_content), intent,
-				android.R.drawable.ic_dialog_map); //TODO rendes ikon
+			fireNotification(getString(R.string.notif_spell_title),
+					getString(R.string.notif_spell_title),
+					getString(R.string.notif_spell_content), intent,
+					android.R.drawable.ic_dialog_map); // TODO rendes ikon
+		
 	}
-	
-	
-	
 
 	private void startUpdateTimer() {
 		mUpdateTask = new TimerTask() {
@@ -405,7 +414,7 @@ public class BRService extends Service implements LocationListener {
 				}
 			}
 		};
-		if(mUpdateTimer == null)
+		if (mUpdateTimer == null)
 			mUpdateTimer = new Timer();
 		mUpdateTimer.scheduleAtFixedRate(mUpdateTask, 0l,
 				Prefs.refreshInterval * 1000);
