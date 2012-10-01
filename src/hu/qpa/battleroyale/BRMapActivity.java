@@ -63,6 +63,8 @@ public class BRMapActivity extends com.google.android.maps.MapActivity {
 		if (extras == null) {
 			return;
 		}
+		
+		//ez már nincs
 		if (extras.containsKey(INTENT_KEY_SPELL_SHOW_EVERYBODY)) {
 
 			// create the overlay of enemies
@@ -94,10 +96,10 @@ public class BRMapActivity extends com.google.android.maps.MapActivity {
 			Spell spell = (Spell) extras.getSerializable(INTENT_KEY_SPELL);
 			final MyItemizedOverlay friendOverlay = new MyItemizedOverlay(this
 					.getResources().getDrawable(
-							android.R.drawable.btn_star_big_on), this);
+							R.drawable.ally), this);
 			final MyItemizedOverlay enemyOverlay = new MyItemizedOverlay(this
 					.getResources().getDrawable(
-							android.R.drawable.ic_dialog_alert), this);
+							R.drawable.foe), this);
 			final MyItemizedOverlay itemOverlay = new MyItemizedOverlay(this
 					.getResources()
 					.getDrawable(android.R.drawable.ic_input_add), this);
@@ -148,7 +150,7 @@ public class BRMapActivity extends com.google.android.maps.MapActivity {
 			 mMapView.getOverlays().remove(itemOverlay);
 			
 			 }
-			 }, 10000);
+			 }, Prefs.spellTimeout *1000);
 
 		}
 		if (extras.containsKey(INTENT_KEY_NEAREST_SERUM)) {

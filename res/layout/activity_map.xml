@@ -3,13 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+<!--     t400 -->
+<!--     <com.google.android.maps.MapView -->
+<!--         android:id="@+id/mapView" -->
+<!--         android:layout_width="match_parent" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_alignParentTop="true" -->
+<!--         android:apiKey="0v6-IUan3Je0nM7z_akihyWPbsQPD9foZ8yHwVA" -->
+<!--         android:clickable="true" /> -->
     
+<!--     w520 -->
     <com.google.android.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:apiKey="0v6-IUan3Je0nM7z_akihyWPbsQPD9foZ8yHwVA"
+        android:apiKey="0k8ChWTg8iBUHZYvDvIf_Mk-Xlf1A50PaVQREOA"
         android:clickable="true" />
 
 </RelativeLayout>

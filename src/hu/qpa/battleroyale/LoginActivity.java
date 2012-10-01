@@ -39,7 +39,7 @@ public class LoginActivity extends BRActivity {
 
 	@Override
 	void handleStateChange(Intent intent) {
-		Toast.makeText(LoginActivity.this,"handle state changed",Toast.LENGTH_SHORT).show();
+//		Toast.makeText(LoginActivity.this,"handle state changed",Toast.LENGTH_SHORT).show();
 		super.handleStateChange(intent);
 		Bundle extras = intent.getExtras();
 		if (extras != null && extras.containsKey(EXTRA_SERVICE_STATE)) {

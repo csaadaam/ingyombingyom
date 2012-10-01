@@ -6,7 +6,6 @@ import hu.qpa.battleroyale.MessageActivity;
 import hu.qpa.battleroyale.Prefs;
 import hu.qpa.battleroyale.R;
 import hu.qpa.battleroyale.engine.types.Spell;
-import hu.qpa.battleroyale.engine.types.SpellMessage;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -14,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,12 +38,13 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 
 public class BRService extends Service implements LocationListener {
 	private static final String TAG = "BRService";
 	public static final String SERVICE_STATE_CHANGED = "Service state is changed.";
 
-	private static final int NOTIFICATION_ID = 876545689;
+	// private static final int NOTIFICATION_ID = 876545689;
 
 	private Intent stateChangeIntent;
 
@@ -139,6 +140,7 @@ public class BRService extends Service implements LocationListener {
 		not.flags |= Notification.FLAG_AUTO_CANCEL;
 		not.number += 1;
 		not.setLatestEventInfo(this, title, message, contentIntent);
+		
 
 		mNotificationManager.notify((int) System.currentTimeMillis(), not);
 	}
@@ -212,6 +214,7 @@ public class BRService extends Service implements LocationListener {
 				android.R.drawable.ic_dialog_alert);
 	}
 
+	@Deprecated
 	public void showEnemies(String enemiesJSON) {
 		// TODO
 
@@ -344,10 +347,12 @@ public class BRService extends Service implements LocationListener {
 			}
 		}
 		if (response.borders != null) {
-			for (double fence[] : response.borders);
-				/*Toast.makeText(getApplicationContext(),
-						"Vannak hatarok:" + fence[1] + " " + fence[0],
-						Toast.LENGTH_SHORT).show();*/
+			for (double fence[] : response.borders)
+				;
+			/*
+			 * Toast.makeText(getApplicationContext(), "Vannak hatarok:" +
+			 * fence[1] + " " + fence[0], Toast.LENGTH_SHORT).show();
+			 */
 		}
 		if (response.alive == 1) {
 			newState(ServiceState.ALIVE, status);
@@ -383,18 +388,35 @@ public class BRService extends Service implements LocationListener {
 	}
 
 	private void handleSpell(String message) {
-		Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT)
-				.show();
-		Spell spell = mGson.fromJson(message, Spell.class);
+//		Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT)
+//				.show();
+		Spell spell = null;
+		try {
+			spell = mGson.fromJson(message, Spell.class);
+		} catch (JsonParseException e) {
+			Log.w(TAG, "", e);
+		}
 		
-			Intent intent = new Intent(this, BRMapActivity.class);
-			intent.putExtra(BRMapActivity.INTENT_KEY_SPELL, spell);
 
-			fireNotification(getString(R.string.notif_spell_title),
-					getString(R.string.notif_spell_title),
-					getString(R.string.notif_spell_content), intent,
-					android.R.drawable.ic_dialog_map); // TODO rendes ikon
+		Intent intent = new Intent(this, BRMapActivity.class);
+		if(spell != null){//spell
+			intent.putExtra(BRMapActivity.INTENT_KEY_SPELL, spell);
 		
+
+		fireNotification(getString(R.string.notif_spell_title),
+				getString(R.string.notif_spell_title),
+				getString(R.string.notif_spell_content), intent,
+				android.R.drawable.ic_dialog_map); // TODO rendes ikon
+		}
+		else{// üzenet a csapattól
+//			Log.d(TAG, message);
+//			Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+			Map<String, String> messageMap = mGson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
+			
+			handleMessage(messageMap.get("Parameter"));
+			
+		}
+
 	}
 
 	private void startUpdateTimer() {
